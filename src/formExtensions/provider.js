@@ -185,7 +185,8 @@
         //VERY basic. For the love of everything holy please do something better with UI Bootstrap modal or something!
         //requires >= v0.2.10!
         confirmUiRouterAndDom: function (rootFormScope, rootForm, $injector) {
-          var confirmationMessage = 'You have unsaved changes are you sure you want to navigate away?';
+//          var confirmationMessage = 'You have unsaved changes are you sure you want to navigate away?';
+          var confirmationMessage = 'Você tem dados não salvos, deseja sair mesmo assim?';
 
           //ANGULAR UI ROUTER
           rootFormScope.$on('$stateChangeStart', function (event) {
@@ -218,10 +219,12 @@
       };
 
 
-      this.defaultFieldName = "This field";
+//      this.defaultFieldName = "This field";
+      this.defaultFieldName = "Este campo";
 
 
       //VALIDATION MESSAGES
+      /*
       this.validationMessages = {
         required: "{0} is required.",
         email: "The field {0} must be an email.",
@@ -234,6 +237,20 @@
         number: "{0} must be a number.",
         unknown: "{0} is invalid."
       };
+      */
+      
+      this.validationMessages = {
+        required: "{0} é obrigatório.",
+        email: "O campo {0} deve ser um email.",
+        minlength: "{0} deve ter pelo menos {1} caractere(s).",
+        maxlength: "{0} deve ser menor que {1} characters.",
+        min: "{0} deve ser no mínimo {1}.",
+        max: "{0} deve ser no máximo {1}.",
+        pattern: "{0} é inválido.",
+        url: "{0} deve ser uma URL válida.",
+        number: "{0} deve ser um número.",
+        unknown: "{0} é inválido."
+      };
 
       this.valMsgForTemplate = '<div class="validation-errors">' +
         '<div class="validation-error" ng-show="showMessages" ng-repeat="msg in errorMessages">{{msg}}</div>' +
@@ -244,7 +261,8 @@
 
       this.confirmResetStrategy = function () {
         //this can be a promise or immediate like below
-        return window.confirm('Are you sure you want to reset any unsaved changes?');
+        //return window.confirm('Are you sure you want to reset any unsaved changes?');
+        return window.confirm('Existem dados não salvos. Tem certeza que deseja redefinir o formulário?');
       };
 
       this.ajaxValidationErrorMappingStrategy = function (response, availableForms) {

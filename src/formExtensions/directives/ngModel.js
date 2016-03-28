@@ -173,6 +173,10 @@
               //clear out the validation messages that exist on *just the field*
               fieldErrorMessages.length = 0;
 
+              var verificaMensagemIgual = function(e) { 
+                return e === msg; 
+              };
+                
               for (var key in ngModel.$error) {
                 if (ngModel.$error[key]) {
 
@@ -206,7 +210,9 @@
                     msg = aaUtils.stringFormat(aaFormExtensions.validationMessages.unknown, fieldName);
                   }
 
-                  fieldErrorMessages.push(msg);
+                  if(!fieldErrorMessages.some(verificaMensagemIgual.bind(msg))) {
+                    fieldErrorMessages.push(msg);
+                  }
                 }
               }
 

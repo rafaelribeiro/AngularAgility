@@ -1,5 +1,5 @@
 /*
-angular-agility "version":"0.8.28" @ 2015-07-06T15:31:48
+angular-agility "version":"0.8.28" @ 2015-12-23T17:12:36
 Copyright (c) 2014 - John Culviner
 Licensed under the MIT license
 */
@@ -1363,7 +1363,8 @@ angular
         //VERY basic. For the love of everything holy please do something better with UI Bootstrap modal or something!
         //requires >= v0.2.10!
         confirmUiRouterAndDom: function (rootFormScope, rootForm, $injector) {
-          var confirmationMessage = 'You have unsaved changes are you sure you want to navigate away?';
+//          var confirmationMessage = 'You have unsaved changes are you sure you want to navigate away?';
+          var confirmationMessage = 'Você tem dados não salvos, deseja sair mesmo assim?';
 
           //ANGULAR UI ROUTER
           rootFormScope.$on('$stateChangeStart', function (event) {
@@ -1396,10 +1397,12 @@ angular
       };
 
 
-      this.defaultFieldName = "This field";
+//      this.defaultFieldName = "This field";
+      this.defaultFieldName = "Este campo";
 
 
       //VALIDATION MESSAGES
+      /*
       this.validationMessages = {
         required: "{0} is required.",
         email: "The field {0} must be an email.",
@@ -1412,6 +1415,20 @@ angular
         number: "{0} must be a number.",
         unknown: "{0} is invalid."
       };
+      */
+      
+      this.validationMessages = {
+        required: "{0} é obrigatório.",
+        email: "O campo {0} deve ser um email.",
+        minlength: "{0} deve ter pelo menos {1} caractere(s).",
+        maxlength: "{0} deve ser menor que {1} characters.",
+        min: "{0} deve ser no mínimo {1}.",
+        max: "{0} deve ser no máximo {1}.",
+        pattern: "{0} é inválido.",
+        url: "{0} deve ser uma URL válida.",
+        number: "{0} deve ser um número.",
+        unknown: "{0} é inválido."
+      };
 
       this.valMsgForTemplate = '<div class="validation-errors">' +
         '<div class="validation-error" ng-show="showMessages" ng-repeat="msg in errorMessages">{{msg}}</div>' +
@@ -1422,7 +1439,8 @@ angular
 
       this.confirmResetStrategy = function () {
         //this can be a promise or immediate like below
-        return window.confirm('Are you sure you want to reset any unsaved changes?');
+        //return window.confirm('Are you sure you want to reset any unsaved changes?');
+        return window.confirm('Existem dados não salvos. Tem certeza que deseja redefinir o formulário?');
       };
 
       this.ajaxValidationErrorMappingStrategy = function (response, availableForms) {
@@ -2192,12 +2210,38 @@ angular
           invalidIcon[0].style.display = 'none';
 
           return function (scope, element, attrs, ngModel) {
+            var closestForm = element.closest('form, *[ng-form]');
+            var formName = closestForm.attr('name') || closestForm.attr('ng-form');
+              
+            /*  
+            scope.$watch(formName+'.'+ngModel.$name+'.$touched', function(n, o) {
+              if(ngModel.$invalid && n && !o) {
+                ngModel.$$parseAndValidate();
+              }
+            });
+              
+            element.on('blur', function(e, i, a) {
+                ngModel.$$parseAndValidate();
+            });  
+            */
+            scope.fieldInFormExtensions = scope.$eval(formName + ".$aaFormExtensions" + ngModel.$name);
+              
+            scope.$watch(
+              function() {
+                return [
+                  scope.fieldInFormExtensions.showErrorReasons
+                ];
+              }, function(n, o) {
+               if(scope.fieldInFormExtensions.showErrorReasons.length > 0) {
+                   ngModel.$$parseAndValidate();
+               }
+            });
             ngModel.$parsers.push(function (val) {
 
-              if (ngModel.$valid) {
+              if (ngModel.$valid || (Object.keys(ngModel.$error).length === 1 && ngModel.$error.parse)) {
                 validIcon[0].style.display = '';
                 invalidIcon[0].style.display = 'none';
-              } else {
+              } else if(ngModel.$touched){
                 validIcon[0].style.display = 'none';
                 invalidIcon[0].style.display = '';
               }
@@ -2964,6 +3008,10 @@ angular
               //clear out the validation messages that exist on *just the field*
               fieldErrorMessages.length = 0;
 
+              var verificaMensagemIgual = function(e) { 
+                return e === msg; 
+              };
+                
               for (var key in ngModel.$error) {
                 if (ngModel.$error[key]) {
 
@@ -2997,7 +3045,9 @@ angular
                     msg = aaUtils.stringFormat(aaFormExtensions.validationMessages.unknown, fieldName);
                   }
 
-                  fieldErrorMessages.push(msg);
+                  if(!fieldErrorMessages.some(verificaMensagemIgual.bind(msg))) {
+                    fieldErrorMessages.push(msg);
+                  }
                 }
               }
 
